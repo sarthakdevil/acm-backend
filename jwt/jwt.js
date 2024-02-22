@@ -13,7 +13,7 @@ export function verifyToken(req, res, next) {
         return res.status(401).json({ message: 'No token provided' });
     }
 
-    jwt.verify(token, 'secret_key', (err, decoded) => {
+    jwt.verify(token,process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: 'Invalid token' });
         }

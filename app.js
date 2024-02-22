@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import errorHandler from './error/error.utils.js';
 import  router from './router/auth.router.js';
 import rateLimit from 'express-rate-limit';
+import blogrouter from './router/blog.router.js';
 
 dotenv.config();
 const app = express();
@@ -35,6 +36,7 @@ app.get('/ping',
     res.send(`pong ${pong}`);
 });
 app.use('/api',limiter,router)
+app.use('/api',limiter,blogrouter)
 
 app.get('*',(req,res)=>{
     res.status(404).send('404 not fond')
