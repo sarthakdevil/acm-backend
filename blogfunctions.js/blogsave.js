@@ -10,7 +10,7 @@ export async function saveBlogToDatabase(title, content, author, category, event
                 Author: author,
                 Category: category, // Assuming 'category' is a field in your Blog model
                 Event: event, // Assuming 'event' is a field in your Blog model
-                Image: imagePath || "no image"
+                Image: imagePath?imagePath : "no image"
             }
         });
         return savedBlog;

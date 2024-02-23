@@ -31,4 +31,5 @@ model blog {
   Event     String @db.VarChar(100)
   Image     String
   Date      DateTime @default(now())
+  Isverified  Boolean  @default(false)
 }
