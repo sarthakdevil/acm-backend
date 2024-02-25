@@ -2,7 +2,7 @@ import express, { Router } from 'express'
 import cors from 'cors';
 import morgan from 'morgan'
 import dotenv from 'dotenv';
-import errorHandler from './error/error.utils.js';
+import errorHandler from './utils/error.utils.js';
 import  router from './router/auth.router.js';
 import rateLimit from 'express-rate-limit';
 import blogrouter from './router/blog.router.js';

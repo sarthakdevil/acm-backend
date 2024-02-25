@@ -33,3 +33,16 @@ model blog {
   Date      DateTime @default(now())
   Isverified  Boolean  @default(false)
 }
+
+model Certificate {
+  id          Int      @id @default(autoincrement())
+  uniqueid    Int      @unique
+  name        String
+  email       String
+  college     String
+  startdate   DateTime
+  enddate     DateTime
+  position        Int
+  course      String
+  enrollment  String
+}

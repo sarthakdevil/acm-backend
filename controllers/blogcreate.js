@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import {saveBlogToDatabase} from '../blogfunctions.js/blogsave.js';
+import {saveBlogToDatabase} from '../functions/blogsave.js';
 const prisma = new PrismaClient();
 export const blogcreate = async (req,res,next)=>{
     const { Title, Content, Author, Category, Event } = req.body;
