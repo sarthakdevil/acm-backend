@@ -13,7 +13,7 @@ export const certificategenerator = async (req, res, next) => {
         // Generate certificate for each entry
         for (const certificate of certificates) {
             await generateCertificate(certificate,"C:/Users/sarth/OneDrive/Desktop/acm backend/uploads/certificate");
-            await mailCertificate(certificate,email);
+            await mailCertificate(certificate,"C:/Users/sarth/OneDrive/Desktop/acm backend/uploads/certificate");
         }
         res.status(200).send('Certificates generated successfully');
     } 
