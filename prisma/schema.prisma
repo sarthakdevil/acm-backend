@@ -46,3 +46,28 @@ model Certificate {
   course      String
   enrollment  String
 }
+
+model Member {
+  id Int  @id @default(autoincrement())
+  image  String?
+  Name String
+  linkedin String?
+  github String?
+  Instagram String?
+  year  String
+  designation String
+  added_on    DateTime
+}
+
+model Office_bearer{
+  id Int  @id @default(autoincrement())
+  name  String
+  designation  String
+  linkedin  String?
+  category  String?
+}
+
+model VisitorCount {
+  id     Int     @id @default(autoincrement())
+  count  Int
+}
