@@ -71,3 +71,11 @@ model VisitorCount {
   id     Int     @id @default(autoincrement())
   count  Int
 }
+model Announcement{
+  id Int  @id @default(autoincrement())
+  title  String
+  description  String
+  date  DateTime @default(now())
+  image  String?
+  link  String?  @db.VarChar(100)
+}

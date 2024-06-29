@@ -1,67 +1,66 @@
-import express, { Router } from 'express'
+import express from 'express';
 import cors from 'cors';
-import morgan from 'morgan'
+import morgan from 'morgan';
 import dotenv from 'dotenv';
 import errorHandler from './utils/error.utils.js';
-import  router from './router/auth.router.js';
-import rateLimit from 'express-rate-limit';
-import blogrouter from './router/blog.router.js';
-import memberrouter from './router/acmmembers.router.js';
+import authRouter from './router/auth.router.js';
+import blogRouter from './router/blog.router.js';
+import memberRouter from './router/acmmembers.router.js';
 import { PrismaClient } from '@prisma/client';
-const prisma = new  PrismaClient();
+import cookieParser from 'cookie-parser';
+import announcerouter from './router/announcement.router.js';
+const prisma = new PrismaClient();
 dotenv.config();
 const app = express();
 
+// Middleware
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(cors())
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const corsOptions = {
-    origin: `http://localhost:${process.env.PORT}`, // Allow requests from example.com
-    methods: 'GET,POST', // Allow only GET and POST requests
-  };
+  origin: "*", // Allow requests from any origin
+  methods: 'GET,POST', // Allow only GET and POST requests
+  credentials: true, // Allow cookies to be sent to the client
+};
 
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: "Too many requests from this IP, please try again later"
+app.use(cors(corsOptions));
+
+// Routes
+app.get('/ping', (req, res) => {
+  console.log('Ping received');
+  const pong = new Date().toISOString();
+  res.send(pong);
 });
 
-app.use(limiter);
-// Middleware to parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }));
-
-app.get('/ping',
-(req, res) => {
-    console.log('Ping received');
-    const pong = new Date().toISOString();
-    res.send(`pong ${pong}`);
-});
-app.use('/api',limiter,router)
-app.use('/api',limiter,blogrouter)
-app.use('/api',limiter,memberrouter)
+app.use('/api/auth', authRouter);
+app.use('/api/blogs', blogRouter);
+app.use('/api/members', memberRouter);
+app.use('/api/announcement',announcerouter)
 
 app.get('*', async (req, res) => {
-    try {
-      // Increment the visitor count
-      await prisma.visitorCount.update({
-        where: { id: 1 }, // Assuming the visitor count is stored with ID 1
-        data: { count: { increment: 1 } }
-      });
-  
-      // Retrieve the updated visitor count
-      const updatedVisitorCount = await prisma.visitorCount.findUnique({ where: { id: 1 } });
-  
-      console.log(`Visitor Count: ${updatedVisitorCount.count}`);
-  
-      // Send the response
-      res.status(404).send('404 Not Found');
-    } catch (error) {
-      console.error('Error updating visitor count:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-  
+  try {
+    // Increment the visitor count
+    await prisma.visitorCount.update({
+      where: { id: 1 }, // Assuming the visitor count is stored with ID 1
+      data: { count: { increment: 1 } }
+    });
+
+    // Retrieve the updated visitor count
+    const updatedVisitorCount = await prisma.visitorCount.findUnique({ where: { id: 1 } });
+
+    console.log(`Visitor Count: ${updatedVisitorCount.count}`);
+
+    // Send the response
+    res.status(404).send('404 Not Found');
+  } catch (error) {
+    console.error('Error updating visitor count:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Error handling middleware
 app.use(errorHandler);
 
 export default app;
