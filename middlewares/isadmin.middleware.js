@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const isAdmin = async (userId) => {
@@ -12,13 +11,12 @@ export const isAdmin = async (userId) => {
     });
 
     // Check if the user exists and is an admin
-    if(user.isAdmin){
-      
-    }else{
-
-    };
+    if (user.isAdmin) {
+    } else {
+    }
   } catch (error) {
     console.error("Error checking user admin status:", error);
     return false; // Return false if an error occurs
   }
 };
+
