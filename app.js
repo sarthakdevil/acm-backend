@@ -10,6 +10,8 @@ import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
 import announcerouter from "./router/announcement.router.js";
 import contactrouter from "./router/contact.router.js";
+import teamUpdate from "./router/team_update.router.js";
+import officeBearer from "./router/office_bearer.router.js";
 const prisma = new PrismaClient();
 dotenv.config();
 const app = express();
@@ -40,11 +42,13 @@ app.use("/api/blogs", blogRouter);
 app.use("/api/members", memberRouter);
 app.use("/api/announcement", announcerouter);
 app.use("/api/contact", contactrouter);
+app.use("/api/team_update", teamUpdate);
+app.use("/api/office_bearer", officeBearer);
 
 app.get("*", async (req, res) => {
   try {
     // Increment the visitor count
-    await prisma.visitorCount.update({
+    await prisma.VisitorCount.update({
       where: { id: 1 }, // Assuming the visitor count is stored with ID 1
       data: { count: { increment: 1 } },
     });

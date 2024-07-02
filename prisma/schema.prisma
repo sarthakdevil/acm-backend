@@ -68,6 +68,20 @@ model Contact {
   message String
 }
 
+model TeamUpdate {
+  id         Int    @id @default(autoincrement())
+  photoUrl   String
+  position   String
+  socialLink String
+}
+
+model OfficeBearer {
+  id         Int    @id @default(autoincrement())
+  photoUrl   String
+  position   String
+  socialLink String
+}
+
 model Office_bearer {
   id          Int     @id @default(autoincrement())
   name        String
