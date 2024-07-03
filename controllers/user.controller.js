@@ -112,9 +112,9 @@ export const logout = async (req, res, next) => {
 
 export const ContactUs = async (req, res, next) => {
   try {
-    const { name, email, phone, message } = req.body;
+    const { name, email, phone, message, college } = req.body;
 
-    if (!name && !email && !phone && !message) {
+    if (!name && !email && !phone && !message && !college) {
       return res.status(200).json({ message: "Please fill all fields" });
     }
 
@@ -124,6 +124,7 @@ export const ContactUs = async (req, res, next) => {
         email: email,
         phone: phone,
         message: message,
+        college: college,
       },
     });
 
@@ -131,4 +132,10 @@ export const ContactUs = async (req, res, next) => {
   } catch (e) {
     return res.status(404).json({ message: e });
   }
+};
+
+export const getContactAll = async (req, res, next) => {
+  const data = await prisma.Contact.findMany();
+
+  return res.status(200).json({ data });
 };

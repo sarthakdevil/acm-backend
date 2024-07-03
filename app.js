@@ -10,8 +10,9 @@ import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
 import announcerouter from "./router/announcement.router.js";
 import contactrouter from "./router/contact.router.js";
-import teamUpdate from "./router/team_update.router.js";
-import officeBearer from "./router/office_bearer.router.js";
+
+import teamRouter from "./router/team_update.router.js";
+
 const prisma = new PrismaClient();
 dotenv.config();
 const app = express();
@@ -29,6 +30,13 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use("/uploads", express.static("uploads"));
+// Debugging middleware to log headers and body
+app.use((req, res, next) => {
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  next();
+});
 
 // Routes
 app.get("/ping", (req, res) => {
@@ -42,8 +50,7 @@ app.use("/api/blogs", blogRouter);
 app.use("/api/members", memberRouter);
 app.use("/api/announcement", announcerouter);
 app.use("/api/contact", contactrouter);
-app.use("/api/team_update", teamUpdate);
-app.use("/api/office_bearer", officeBearer);
+app.use("/api/team_update", teamRouter);
 
 app.get("*", async (req, res) => {
   try {
@@ -54,7 +61,7 @@ app.get("*", async (req, res) => {
     });
 
     // Retrieve the updated visitor count
-    const updatedVisitorCount = await prisma.visitorCount.findUnique({
+    const updatedVisitorCount = await prisma.VisitorCount.findUnique({
       where: { id: 1 },
     });
 

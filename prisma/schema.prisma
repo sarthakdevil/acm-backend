@@ -23,6 +23,11 @@ enum Role {
   ADMIN
 }
 
+enum Category {
+  Office_Bearers
+  Team_Members
+}
+
 model blog {
   Sno        Int      @id @default(autoincrement())
   Title      String   @db.VarChar(200)
@@ -65,29 +70,21 @@ model Contact {
   name    String
   email   String @unique
   phone   String
+  college String
   message String
 }
 
 model TeamUpdate {
-  id         Int    @id @default(autoincrement())
-  photoUrl   String
-  position   String
-  socialLink String
-}
-
-model OfficeBearer {
-  id         Int    @id @default(autoincrement())
-  photoUrl   String
-  position   String
-  socialLink String
-}
-
-model Office_bearer {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
+  photoUrl    String
   name        String
   designation String
-  linkedin    String?
-  category    String?
+  linkedin    String
+  github      String
+  instagram   String
+  year        Int
+  category    Category
+  active      Int      @default(1)
 }
 
 model VisitorCount {
