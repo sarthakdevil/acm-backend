@@ -1,0 +1,110 @@
+//connecting prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//creating user model
+model User {
+  Sno       Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   @unique
+  role      Role // New field for user role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Category {
+  Office_Bearers
+  Team_Members
+}
+
+model blog {
+  Sno        Int      @id @default(autoincrement())
+  Title      String   @db.VarChar(200)
+  Author     String   @db.VarChar(50)
+  Content    String
+  Category   String   @db.VarChar(50)
+  Event      String   @db.VarChar(100)
+  Image      String
+  Date       DateTime @default(now())
+  Isverified Boolean  @default(false)
+}
+
+model Certificate {
+  id         Int      @id @default(autoincrement())
+  uniqueid   Int      @unique
+  name       String
+  email      String
+  college    String
+  startdate  DateTime
+  enddate    DateTime
+  position   Int
+  course     String
+  enrollment String
+}
+
+model Member {
+  id          Int      @id @default(autoincrement())
+  image       String?
+  Name        String
+  linkedin    String?
+  github      String?
+  Instagram   String?
+  year        String
+  designation String
+  added_on    DateTime
+}
+
+model Contact {
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String @unique
+  phone   String
+  college String
+  message String
+}
+
+model TeamUpdate {
+  id          Int      @id @default(autoincrement())
+  photoUrl    String
+  name        String
+  designation String
+  linkedin    String
+  github      String
+  instagram   String
+  year        Int
+  category    Category
+  active      Int      @default(1)
+}
+
+model VisitorCount {
+  id    Int @id @default(autoincrement())
+  count Int
+}
+
+model Announcement {
+  sno         Int       @id @default(autoincrement())
+  name        String?
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  button1Text String?
+  button1Link String?
+  button2Text String?
+  button2Link String?
+  partners    String?
+  speakers    String?
+  poster      String?
+  year        Int?
+  time        String
+}
