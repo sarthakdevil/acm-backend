@@ -7,7 +7,6 @@ export const teamUpdate = async (req, res, next) => {
     console.log("Request files:", req.files);
 
     const {
-      position,
       name,
       designation,
       linkedin,
@@ -21,10 +20,10 @@ export const teamUpdate = async (req, res, next) => {
 
     const profile_image = req.files?.profile_image?.[0]?.path;
 
-    if (!position || !profile_image) {
+    if (!profile_image) {
       return res
         .status(400)
-        .json({ message: "Please fill all required details" });
+        .json({ message: "Please upload image required details" });
     }
 
     const newTeamMember = await prisma.teamUpdate.create({

@@ -93,10 +93,18 @@ model VisitorCount {
 }
 
 model Announcement {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  date        DateTime @default(now())
-  image       String?
-  link        String?  @db.VarChar(100)
+  sno         Int       @id @default(autoincrement())
+  name        String?
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  button1Text String?
+  button1Link String?
+  button2Text String?
+  button2Link String?
+  partners    String?
+  speakers    String?
+  poster      String?
+  year        Int?
+  time        DateTime  @default(now())
 }
