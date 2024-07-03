@@ -106,7 +106,7 @@ model Announcement {
   speakers    String?
   poster      String?
   year        Int?
-  time        String
+  time        String?
 }
 
 model Announcement {
