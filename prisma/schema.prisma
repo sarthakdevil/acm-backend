@@ -108,3 +108,20 @@ model Announcement {
   year        Int?
   time        String
 }
+
+model Announcement {
+  sno          Int      @id @default(autoincrement())
+  name         String?
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  button1Text  String?
+  button1Link  String?
+  button2Text  String?
+  button2Link  String?
+  partners     String?
+  speakers     String?
+  poster       String?
+  year         Int?
+  time         String?
+}
