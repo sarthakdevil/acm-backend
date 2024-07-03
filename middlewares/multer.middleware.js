@@ -1,6 +1,6 @@
-import path from 'path';
-import fs from 'fs';
-import multer from 'multer';
+import path from "path";
+import fs from "fs";
+import multer from "multer";
 // Ensure destination directory exists
 const uploadDirectory = "uploads/images";
 if (!fs.existsSync(uploadDirectory)) {
@@ -14,7 +14,7 @@ export const upload = multer({
     destination: uploadDirectory,
     filename: (req, file, cb) => {
       // Generate a unique filename to prevent overwriting
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
       const extension = path.extname(file.originalname);
       cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
     },
@@ -29,4 +29,3 @@ export const upload = multer({
     cb(null, true);
   },
 });
-
