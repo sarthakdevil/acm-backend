@@ -24,14 +24,14 @@ enum Role {
 
 model blog {
   Sno        Int      @id @default(autoincrement())
-  Title     String @db.VarChar(200)
-  Author    String @db.VarChar(50)
-  Content   String
-  Category  String @db.VarChar(50)
-  Event     String @db.VarChar(100)
-  Image     String
-  Date      DateTime @default(now())
-  Isverified  Boolean  @default(false)
+  Title      String   @db.VarChar(200)
+  Author     String   @db.VarChar(50)
+  Content    String
+  Category   String   @db.VarChar(50)
+  Event      String   @db.VarChar(100)
+  Image      String
+  Date       DateTime @default(now())
+  Isverified Boolean  @default(false)
 }
 
 model Certificate {
@@ -71,11 +71,20 @@ model VisitorCount {
   id     Int     @id @default(autoincrement())
   count  Int
 }
-model Announcement{
-  id Int  @id @default(autoincrement())
-  title  String
-  description  String
-  date  DateTime @default(now())
-  image  String?
-  link  String?  @db.VarChar(100)
+
+model Announcement {
+  sno          Int      @id @default(autoincrement())
+  name         String?
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  button1Text  String?
+  button1Link  String?
+  button2Text  String?
+  button2Link  String?
+  partners     String?
+  speakers     String?
+  poster       String?
+  year         Int?
+  time         String?
 }
