@@ -106,5 +106,5 @@ model Announcement {
   speakers    String?
   poster      String?
   year        Int?
-  time        DateTime  @default(now())
+  time        String?
 }
