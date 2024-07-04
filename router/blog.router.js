@@ -5,8 +5,8 @@ import { isAdmin } from "../middlewares/isadmin.middleware.js";
 import {upload} from "../middlewares/multer.middleware.js";
 const blogrouter = new Router()
 
-blogrouter.post("/blogmaker",verifyToken,upload.single('image'),blogcreate)
-blogrouter.put("/blog/:id",verifyToken,upload.single("image"),blogupdate)
+blogrouter.post("/blogmaker",verifyToken,upload.single('Image'),blogcreate)
+blogrouter.put("/blog/:id",verifyToken,upload.single("Image"),blogupdate)
 blogrouter.delete("/blog/:id",[verifyToken,isAdmin],blogdelete)
 blogrouter.get("/blogverify",verifyToken)
 blogrouter.post("/blogverify",verifyToken,isAdmin,blogverify)

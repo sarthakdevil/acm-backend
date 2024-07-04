@@ -1,4 +1,5 @@
 import express from 'express';
+
 import  { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 
@@ -8,8 +9,8 @@ const prisma = new PrismaClient();
 const eventSchema = z.object({
   name: z.string().nonempty("Name is required"),
   description: z.string().nonempty("Description is required"),
-  startDate: z.string().nonempty("Start date is required").optional(), // Assuming date is sent as a string in ISO format
-  endDate: z.string().nonempty("End date is required").optional(), // Assuming date is sent as a string in ISO format
+  startDate: z.string().optional(), // Assuming date is sent as a string in ISO format
+  endDate: z.string().optional(), // Assuming date is sent as a string in ISO format
   button1Text: z.string().nonempty("Button1 text is required"),
   button1Link: z.string().url().nonempty("Button1 link is required"),
   button2Text: z.string().nonempty("Button2 text is required"),
@@ -18,7 +19,7 @@ const eventSchema = z.object({
   speakers: z.string().nonempty("Speakers are required"),
   poster: z.string().optional(), // Assuming this is a URL or a path to the poster
   year: z.number().int().nonnegative("Year is required"),
-  time: z.string().nonempty("Time is required"),
+  time: z.string().optional(),
 });
 
 const eventUpdateSchema = z.object({
@@ -36,20 +37,31 @@ const eventUpdateSchema = z.object({
   year: z.number().int().nonnegative().optional(),
   time: z.string().optional(),
 });
-
 // Create event
 export const makeannouncement = async (req,res,next)=>{
+  const posterPath = req.file ? req.file.path : undefined;
+  const data = {
+    name: req.body.name,
+    description: req.body.description,
+    startDate: req.body.startDate || '0',
+    endDate: req.body.endDate || '0',
+    button1Text: req.body.button1Text,
+    button1Link: req.body.button1Link,
+    button2Text: req.body.button2Text,
+    button2Link: req.body.button2Link,
+    partners: req.body.partners,
+    speakers: req.body.speakers,
+    poster: posterPath, // Use the path from Multer
+    year: Number(req.body.year),
+    time: req.body.time
+  };
+  console.log(data);
+
   try {
     // Validate the request body
-    const validatedData = eventSchema.parse(req.body);
-
-    const event = await prisma.event.create({
-      data: {
-        ...validatedData,
-        startDate: new Date(validatedData.startDate),
-        endDate: new Date(validatedData.endDate),
-      },
-    });
+    const parsed = eventSchema.parse(data);
+    console.log(parsed);
+    const event = await prisma.event.create(parsed);
 
     return res.status(200).json({ success: true, data: event });
   } catch (err) {
@@ -67,23 +79,28 @@ export const announcementupdate = async (req,res,next)=>{
   try {
     // Validate the request body
     const validatedData = eventUpdateSchema.parse(req.body);
+    const posterPath = req.file ? req.file.path : undefined;
 
-    const updatedEvent = await prisma.event.update({
+    const updateData = {
+      ...validatedData,
+      ...(validatedData.startDate && { startDate: new Date(validatedData.startDate) }),
+      ...(validatedData.endDate && { endDate: new Date(validatedData.endDate) }),
+    };
+
+    // If a new poster was uploaded, add it to the update data
+    if (posterPath) {
+      updateData.poster = posterPath;
+    }
+
+    // Update the announcement in the database
+    const updatedAnnouncement = await prisma.event.update({
       where: { sno },
-      data: {
-        ...validatedData,
-        ...(validatedData.startDate && { startDate: new Date(validatedData.startDate) }),
-        ...(validatedData.endDate && { endDate: new Date(validatedData.endDate) }),
-      },
+      data: updateData,
     });
 
-    return res.status(200).json({ success: true, data: updatedEvent });
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: err.errors });
-    }
-    console.error(err);
-    return res.status(400).json({ success: false, error: "Failed To Update Event" });
+    res.status(200).json({ message: "Update successful", updatedAnnouncement });
+  } catch (e) {
+    res.status(400).json({ message: "Update failed", errors: e.errors });
   }
 };
 

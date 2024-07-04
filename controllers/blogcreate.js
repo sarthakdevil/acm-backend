@@ -1,42 +1,76 @@
 import { PrismaClient } from "@prisma/client";
 import { saveBlogToDatabase } from "../functions/blogsave.js";
 const prisma = new PrismaClient();
+import {z} from 'zod'
+const blogCreateSchema = z.object({
+  Title: z.string().nonempty("Title is required"),
+  Content: z.string().nonempty("Content is required"),
+  Author: z.string().nonempty("Author is required"),
+  Category: z.string().nonempty("Category is required"),
+  Event: z.string().nonempty("Event is required"),
+});
+
+const blogUpdateSchema = z.object({
+  Title: z.string().optional(),
+  Content: z.string().optional(),
+  Author: z.string().optional(),
+  Category: z.string().optional(),
+  Event: z.string().optional(),
+});
+
+const blogVerifySchema = z.object({
+  blogId: z.number().int().positive("Invalid blog ID"),
+  verified: z.boolean(),
+});
+
 export const blogcreate = async (req, res, next) => {
   const { Title, Content, Author, Category, Event } = req.body;
-  if (!(Title && Content && Author && Category && Event))
-    return res.status(400).send({ error: "Missing fields" });
+
+  // Validate request body using Zod
+  try {
+    blogCreateSchema.parse({ Title, Content, Author, Category, Event });
+  } catch (e) {
+    return res.status(400).json({ error: e.errors });
+  }
+
   try {
     let savedBlog;
     if (req.file) {
       const imagePath = req.file.path;
-      // Saving the blog details along with the image path to the database using Prisma
       savedBlog = await saveBlogToDatabase(
         Title,
         Content,
         Author,
         Category,
         Event,
-        imagePath,
+        imagePath
       );
     } else {
-      // Saving the blog details without the image path to the database using Prisma
       savedBlog = await saveBlogToDatabase(
         Title,
         Content,
         Author,
         Category,
-        Event,
+        Event
       );
     }
     res.status(200).json({ success: true, blog: savedBlog });
   } catch (error) {
     console.error("Error:", error);
-    throw next(error);
+    return next(error);
   }
 };
 
 export const blogupdate = async (req, res, next) => {
   const Sno = Number(req.params.id);
+
+  // Validate request body using Zod
+  try {
+    blogUpdateSchema.parse(req.body);
+  } catch (e) {
+    return res.status(400).json({ error: e.errors });
+  }
+
   try {
     const updatedBlog = await prisma.$transaction([
       prisma.blog.update({ where: { Sno }, data: req.body }),
@@ -45,9 +79,7 @@ export const blogupdate = async (req, res, next) => {
     return res.status(200).json({ success: true, data: updatedBlog });
   } catch (err) {
     console.error(err);
-    return res
-      .status(400)
-      .json({ success: false, error: "Failed To Update Blog" });
+    return res.status(400).json({ success: false, error: "Failed To Update Blog" });
   }
 };
 
@@ -56,27 +88,32 @@ export const blogdelete = async (req, res, next) => {
 
   try {
     await prisma.blog.delete({ where: { Sno } });
-    res.status(200).json({ sucess: true, message: "Deleted Successfully" });
+    res.status(200).json({ success: true, message: "Deleted Successfully" });
   } catch (err) {
     console.error(err);
-    throw next(err);
+    return next(err);
   }
 };
 
 export const blogverify = async (req, res, next) => {
-  const { blogId, verified } = req.body; // Assuming blogId and verified (true/false) are sent in the request body
+  const { blogId, verified } = req.body;
+
+  // Validate request body using Zod
+  try {
+    blogVerifySchema.parse({ blogId, verified });
+  } catch (e) {
+    return res.status(400).json({ error: e.errors });
+  }
 
   try {
-    // Update the verification status of the blog post in the database
     const updatedBlog = await prisma.blog.update({
       where: { id: blogId },
-      data: { verified: verified },
+      data: { verified },
     });
 
-    // Send response indicating success
     res.status(200).json({ success: true, blog: updatedBlog });
   } catch (error) {
     console.error("Error verifying blog:", error);
-    throw next(error);
+    return next(error);
   }
 };
