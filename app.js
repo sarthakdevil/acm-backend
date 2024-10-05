@@ -10,7 +10,7 @@ import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
 import announcerouter from "./router/announcement.router.js";
 import contactrouter from "./router/contact.router.js";
-
+import { rateLimit } from 'express-rate-limit';
 import teamRouter from "./router/team_update.router.js";
 
 const prisma = new PrismaClient();
@@ -31,6 +31,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use("/uploads", express.static("uploads"));
+
+// Rate limiting middleware (limit to 100 requests per 15 minutes per IP)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+
+// Apply the rate limiting middleware to all API routes
+app.use("/api", limiter);
+
 // Debugging middleware to log headers and body
 app.use((req, res, next) => {
   console.log("Headers:", req.headers);
