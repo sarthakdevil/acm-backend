@@ -12,6 +12,7 @@ import announcerouter from "./router/announcement.router.js";
 import contactrouter from "./router/contact.router.js";
 import { rateLimit } from 'express-rate-limit';
 import teamRouter from "./router/team_update.router.js";
+import formRouter from "./router/form.router.js";
 
 const prisma = new PrismaClient();
 dotenv.config();
@@ -62,6 +63,7 @@ app.use("/api/members", memberRouter);
 app.use("/api/announcement", announcerouter);
 app.use("/api/contact", contactrouter);
 app.use("/api/team_update", teamRouter);
+app.use("/api/form", formRouter);
 
 app.get("*", async (req, res) => {
   try {
