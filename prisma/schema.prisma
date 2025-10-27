@@ -108,3 +108,11 @@ model Announcement {
   year        Int?
   time        DateTime? @default(now())
 }
+
+model Form {
+  id              Int    @id @default(autoincrement())
+  acmMemberShipId Int    @unique
+  name            String
+  email           String @unique
+  roll            Int    @unique
+}
