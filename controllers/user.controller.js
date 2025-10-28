@@ -13,20 +13,10 @@ const cookieOptions = {
   maxAge: 3600000,
 };
 
-const registerSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-});
-
-const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
 // Register route
 export const register = async (req, res, next) => {
   try {
-    const userData = registerSchema.parse(req.body);
+    const userData = req.body;
 
     // Hashing password using bcrypt
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -57,7 +47,7 @@ export const register = async (req, res, next) => {
 // Login route
 export const login = async (req, res, next) => {
   try {
-    const loginData = loginSchema.parse(req.body);
+    const loginData = req.body;
 
     // Find user by username
     const user = await prisma.user.findUnique({
@@ -109,6 +99,156 @@ export const logout = async (req, res, next) => {
     next(error);
   }
 };
+
+//Reset Password Route
+export const resetPassword = async (req, res, next) => {
+  try {
+    // Ensure user is authenticated (req.user set by verifyToken middleware)
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: Invalid user token." });
+    }
+
+    const { password } = req.body;
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user password
+    const updatedUser = await prisma.user.update({
+      where: { Sno: userId },
+      data: { password: hashedPassword },
+    });
+
+    return res.status(200).json({
+      message: "Password updated successfully.",
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: error.errors });
+    }
+    console.error("Error resetting password:", error);
+    next(error);
+  }
+};
+
+
+// Admin - Updation of User
+export const updateUser = async (req, res, next) => {
+  try {
+    // Validate Sno param and request body
+    const { Sno } = req.params;
+    const parsedData = req.body;
+
+    // Prevent editing createdAt / updatedAt
+    if ("createdAt" in req.body || "updatedAt" in req.body) {
+      return res.status(400).json({
+        message: "You cannot modify createdAt or updatedAt fields.",
+      });
+    }
+
+    // Find the user to ensure existence
+    const existingUser = await prisma.user.findUnique({
+      where: { Sno: parseInt(Sno, 10) },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { Sno: parseInt(Sno, 10) },
+      data: parsedData,
+    });
+
+    return res.status(200).json({
+      message: "User updated successfully.",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    // Prisma unique constraint violation for username
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        message: "Username must be unique.",
+      });
+    }
+
+    // Validation error from Zod
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: error.errors });
+    }
+
+    console.error("Error updating user:", error);
+    next(error); 
+  }
+};
+
+// Delete User - Admin only 
+export const deleteUser = async (req, res, next) => {
+  try {
+    // Validate Sno param
+    const Sno = parseInt(req.params.Sno, 10);
+
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { Sno },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Delete user
+    await prisma.user.delete({
+      where: { Sno },
+    });
+
+    return res.status(200).json({ message: `User with Sno ${Sno} deleted successfully.` });
+  } catch (error) {
+    // Validation error
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: error.errors });
+    }
+
+    console.error("Error deleting user:", error);
+    next(error); 
+  }
+};
+
+
+//Fetch All Users - Admin only
+export const fetchAllUsers = async (req, res, next) => {
+  try {
+    // Fetch all users (excluding sensitive info like password)
+    const users = await prisma.user.findMany({
+      select: {
+        Sno: true,
+        username: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { Sno: "asc" },
+    });
+
+    return res.status(200).json({
+      message: "Users fetched successfully.",
+      users,
+    });
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    next(error);
+  }
+};
+
 
 export const ContactUs = async (req, res, next) => {
   try {
