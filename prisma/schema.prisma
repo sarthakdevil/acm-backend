@@ -12,7 +12,7 @@ datasource db {
 model User {
   Sno       Int      @id @default(autoincrement())
   username  String   @unique
-  password  String   @unique
+  password  String   
   role      Role // New field for user role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -107,4 +107,12 @@ model Announcement {
   poster      String?
   year        Int?
   time        DateTime? @default(now())
+}
+
+model Form {
+  id              Int    @id @default(autoincrement())
+  acmMemberShipId Int    @unique
+  name            String
+  email           String @unique
+  roll            Int    @unique
 }

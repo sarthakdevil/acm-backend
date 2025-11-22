@@ -1,22 +1,34 @@
 import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
-export const isAdmin = async (userId) => {
+/**
+ * Middleware to ensure the authenticated user is an admin.
+ * Requires `verifyToken` middleware first, so req.user.id (Sno) exists.
+ */
+export const isAdmin = async (req, res, next) => {
   try {
-    // Retrieve the user from the database
+    const userId = req.user?.id; // from JWT payload
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: Missing user ID in token" });
+    }
+
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { Sno: userId },
     });
 
-    // Check if the user exists and is an admin
-    if (user.isAdmin) {
-    } else {
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    if (user.role !== "ADMIN") {
+      return res.status(403).json({ message: "Access denied: Admins only" });
+    }
+
+    next(); // user is admin
   } catch (error) {
-    console.error("Error checking user admin status:", error);
-    return false; // Return false if an error occurs
+    console.error("Error verifying admin status:", error);
+    return res.status(500).json({ message: "Internal server error while checking admin status" });
   }
 };
-
